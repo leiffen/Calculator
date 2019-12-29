@@ -28,36 +28,39 @@ class _MyHomePageState extends State<MyHomePage> {
   String formula = '';
   String result = '';
 
-  String delclr = 'DEL';
-
   RegExp ops = new RegExp('[+|\\-|x|\u{00F7}]');
   RegExp opsNoSub = new RegExp('[+|x|\u{00F7}]');
 
   String calculate() {
     double num1;
     double num2;
-    int ptr = 0;
+    int preOpI;
+    int nextOpI;
     String f = formula;
 
-    for (int operator = f.indexOf(ops);
-        operator >= 0;
-        operator = f.indexOf(ops, ptr)) {
-      if (operator == 0) {
-        ptr = 1;
+    RegExp re = RegExp('[x|\u{00F7}]');
+
+    int operator = f.indexOf(re);
+    while (f.contains(ops)) {
+      if (operator == -1) {
+        re = RegExp('[+|\\-]');
       } else {
-        num1 = double.parse(f.substring(0, operator));
-        print(num1);
-        int nextOperator = f.indexOf(ops, operator + 1);
+        // Find previous operator index
+        preOpI = f.substring(0, operator).lastIndexOf(ops);
+        // Get first number
+        num1 = double.parse(f.substring(preOpI + 1, operator));
 
-        if (nextOperator == operator + 1) {
-          nextOperator = f.indexOf(ops, nextOperator + 1);
+        nextOpI = f.indexOf(ops, operator + 1);
+
+        if (nextOpI == operator + 1) {
+          nextOpI = f.indexOf(ops, nextOpI + 1);
         }
 
-        if (nextOperator < 0) {
-          nextOperator = f.length;
+        if (nextOpI < 0) {
+          nextOpI = f.length;
         }
 
-        num2 = double.parse(f.substring(operator + 1, nextOperator));
+        num2 = double.parse(f.substring(operator + 1, nextOpI));
 
         double r = 0;
         if (f[operator] == '+') {
@@ -70,10 +73,9 @@ class _MyHomePageState extends State<MyHomePage> {
           r = num1 / num2;
         }
 
-        f = f.replaceRange(0, nextOperator, r.toString());
-
-        ptr = 0;
+        f = f.replaceRange(preOpI + 1, nextOpI, r.toString());
       }
+      operator = f.indexOf(re);
     }
 
     double temp = double.parse(f);
@@ -103,7 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // EQUALS button
     } else if (buttonText == '=') {
       setState(() {
-        delclr = 'CLR';
         formula = calculate();
         result = '';
       });
@@ -162,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
           !formula[formula.length - 1]
               .contains(new RegExp('[+|\\-|x|\u{00F7}|.]'))) {
         setState(() {
-          result = calculate();
+//          result = calculate();
         });
       }
       // Clear result when formula is empty
