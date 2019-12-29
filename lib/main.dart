@@ -92,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
         formula = '';
       });
 
-    // DELETE button
+      // DELETE button
     } else if (buttonText == 'DEL') {
       if (formula.isNotEmpty) {
         setState(() {
@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
 
-    // EQUALS button
+      // EQUALS button
     } else if (buttonText == '=') {
       setState(() {
         delclr = 'CLR';
@@ -108,14 +108,6 @@ class _MyHomePageState extends State<MyHomePage> {
         result = '';
       });
     } else {
-
-      // Switch between CLEAR and DELETE
-      if (delclr != 'DEL') {
-        setState(() {
-          delclr = 'DEL';
-        });
-      }
-
       if (buttonText.contains(opsNoSub) && formula.length == 0) {
         // Do nothing
       } else if (buttonText.contains(opsNoSub) &&
@@ -144,8 +136,11 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       } else if (buttonText.contains('0') &&
           formula.endsWith('0') &&
-          (formula.lastIndexOf('.') == -1 ||
-              formula.lastIndexOf('.') < formula.lastIndexOf(ops))) {
+          ((formula.lastIndexOf('.') == -1 &&
+                  !formula.contains(RegExp('[1-9]'))) ||
+              (formula.lastIndexOf('.') < formula.lastIndexOf(ops) &&
+                  !formula.contains(
+                      RegExp('[1-9]'), formula.lastIndexOf(ops))))) {
         // Do nothing
       } else {
         int i = formula.lastIndexOf(ops);
@@ -170,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
           result = calculate();
         });
       }
-    // Clear result when formula is empty
+      // Clear result when formula is empty
     } else {
       setState(() {
         result = '';
@@ -182,9 +177,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget button(String buttonText) {
     return new Expanded(
+        child: ButtonTheme(
+      height: MediaQuery.of(context).size.height / 5 * 3 / 5,
       child: FlatButton(
         color: Colors.grey[900],
-        padding: EdgeInsets.all(30.0),
         child: Text(
           buttonText,
           style: TextStyle(
@@ -195,14 +191,33 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         onPressed: () => buttonPressed(buttonText),
       ),
-    );
+    ));
+  }
+
+  Widget specialButton(String buttonText) {
+    return new Expanded(
+        child: ButtonTheme(
+      height: MediaQuery.of(context).size.height / 5 * 3 / 5,
+      child: FlatButton(
+        color: Colors.grey[900],
+        child: Text(
+          buttonText,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onPressed: () => buttonPressed(buttonText),
+      ),
+    ));
   }
 
   Widget blank() {
     return new Expanded(
       child: Container(
+        height: MediaQuery.of(context).size.height / 5 * 3 / 5,
         color: Colors.grey[900],
-        padding: EdgeInsets.all(30.0),
         child: Text(
           '',
           style: TextStyle(
@@ -262,8 +277,8 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 Row(
                   children: [
-                    button(delclr),
-                    blank(),
+                    specialButton('CLR'),
+                    specialButton('DEL'),
                     blank(),
                     button("\u{00F7}"),
                   ],
@@ -296,7 +311,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     button("."),
                     button("0"),
-                    blank(),
+                    specialButton('x1.23'),
                     button("="),
                   ],
                 ),
