@@ -28,7 +28,12 @@ class _MyHomePageState extends State<MyHomePage> {
   String formula = '';
   String result = '';
   List<String> prevResult = [];
+
   bool calculated = false;
+  bool badExp = false;
+
+  Color formulaColor = Colors.white;
+  Color resultColor = Colors.grey;
 
   RegExp ops = new RegExp('[+|\\-|x|\u{00F7}]');
   RegExp opsNoSub = new RegExp('[+|x|\u{00F7}]');
@@ -105,7 +110,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return f;
   }
 
+  checkBadExp() {
+    if (badExp) {
+      setState(() {
+        formulaColor = Colors.white;
+        resultColor = Colors.grey;
+        result = prevResult.isNotEmpty ? prevResult.last : '';
+        badExp = false;
+      });
+    }
+  }
+
   specialButtonPressed(String buttonText) {
+    checkBadExp();
+
     if (buttonText == 'CLR') {
       setState(() {
         formula = '';
@@ -129,12 +147,14 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     try {
       calculatePreview(buttonText);
-    } catch (e) {
-      print('error for preview');
-    }
+    } catch (e) {}
   }
 
   buttonPressed(String buttonText) {
+    checkBadExp();
+    if (calculated) {
+      result = formula;
+    }
     if (buttonText == '=') {
       try {
         if (formula.length > 0) {
@@ -146,7 +166,12 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         }
       } catch (e) {
-        print('error on equals');
+        setState(() {
+          formulaColor = Colors.red;
+          resultColor = Colors.red;
+          result = 'Bad Expression';
+          badExp = true;
+        });
       }
     } else {
       if (buttonText.contains(opsNoSub) && formula.length == 0) {
@@ -157,8 +182,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // Do nothing
       } else if (buttonText == '-' &&
           ((formula.length > 2 &&
-              formula[formula.length - 1] == '-' &&
-              formula[formula.length - 2].contains(ops)) ||
+                  formula[formula.length - 1] == '-' &&
+                  formula[formula.length - 2].contains(ops)) ||
               (formula.length == 1 && formula.endsWith('-')))) {
         // Do nothing
       } else if (buttonText.contains(opsNoSub) &&
@@ -178,11 +203,9 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       } else if (buttonText.contains('0') &&
           formula.endsWith('0') &&
-          ((formula.lastIndexOf('.') == -1 &&
-              !formula.contains(nums)) ||
+          ((formula.lastIndexOf('.') == -1 && !formula.contains(nums)) ||
               (formula.lastIndexOf('.') < formula.lastIndexOf(ops) &&
-                  !formula.contains(
-                      nums, formula.lastIndexOf(ops))))) {
+                  !formula.contains(nums, formula.lastIndexOf(ops))))) {
         // Do nothing
       } else {
         int i = formula.lastIndexOf(ops);
@@ -191,10 +214,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 (i == -1 && formula.contains('.')))) {
           // Do nothing
         } else {
-          if (calculated && buttonText.contains(RegExp('.|[1-9]'))) {
+          if (calculated && buttonText.contains(new RegExp('[.|1-9]'))) {
             setState(() {
               formula = '';
-              calculated = false;
             });
           }
           setState(() {
@@ -202,13 +224,12 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         }
       }
+      calculated = false;
     }
 
     try {
       calculatePreview(buttonText);
-    } catch (e) {
-      print('error for preview');
-    }
+    } catch (e) {}
   }
 
   calculatePreview(String buttonText) {
@@ -221,6 +242,10 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             result = calculate();
             prevResult.add(result);
+          });
+        } else {
+          setState(() {
+            result = prevResult.last;
           });
         }
       } else {
@@ -238,62 +263,50 @@ class _MyHomePageState extends State<MyHomePage> {
         prevResult = [];
       });
     }
-//    print('result ' + result);
-//    print('prevResult ' + prevResult.toString());
-//    print('');
   }
 
   Widget button(String buttonText) {
     return new Expanded(
         child: ButtonTheme(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height / 5 * 3 / 5,
-          child: FlatButton(
-            color: Colors.grey[900],
-            child: Text(
-              buttonText,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            onPressed: () => buttonPressed(buttonText),
+      height: MediaQuery.of(context).size.height / 5 * 3 / 5,
+      child: FlatButton(
+        color: Colors.grey[900],
+        child: Text(
+          buttonText,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
           ),
-        ));
+        ),
+        onPressed: () => buttonPressed(buttonText),
+      ),
+    ));
   }
 
   Widget specialButton(String buttonText) {
     return new Expanded(
         child: ButtonTheme(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height / 5 * 3 / 5,
-          child: FlatButton(
-            color: Colors.grey[900],
-            child: Text(
-              buttonText,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            onPressed: () => specialButtonPressed(buttonText),
+      height: MediaQuery.of(context).size.height / 5 * 3 / 5,
+      child: FlatButton(
+        color: Colors.grey[900],
+        child: Text(
+          buttonText,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14.0,
+            fontWeight: FontWeight.bold,
           ),
-        ));
+        ),
+        onPressed: () => specialButtonPressed(buttonText),
+      ),
+    ));
   }
 
   Widget blank() {
     return new Expanded(
       child: Container(
-        height: MediaQuery
-            .of(context)
-            .size
-            .height / 5 * 3 / 5,
+        height: MediaQuery.of(context).size.height / 5 * 3 / 5,
         color: Colors.grey[900],
         child: Text(
           '',
@@ -326,7 +339,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(
                   fontSize: 48.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: formulaColor,
                 ),
               ),
             ),
@@ -341,7 +354,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: TextStyle(
                   fontSize: 36.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+                  color: resultColor,
                 ),
               ),
             ),
