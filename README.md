@@ -1,6 +1,6 @@
 # CaLcuLator - For Convenience
 
-** About this app
+## About this app
 
 A simple calculator for android and ios.
 CaLcuLator allows you to customize your buttons to provide the most convenience for you.
