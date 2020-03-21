@@ -1,8 +1,9 @@
 # CaLcuLator - For Convenience
+###### NOTE: Work in progress
 
 ## About this app
 
-A simple calculator for android and ios.
+A simple calculator for android and ios developed in Flutter.
 CaLcuLator allows you to customize your buttons to provide the most convenience for you.
 CaLcuLator offers a variety of color themes where you could choose based on your style.
 
