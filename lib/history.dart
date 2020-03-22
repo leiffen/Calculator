@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dialog.dart';
 
 class History extends StatefulWidget {
-  const History({Key key}) : super(key: key);
+  const History({Key key, this.primaryColor}) : super(key: key);
+
+  final Color primaryColor;
+
   @override
   _HistoryState createState() => _HistoryState();
 }
@@ -76,7 +80,7 @@ class _HistoryState extends State<History> {
                   Text(
                     dateObjects['date'].split(' ')[0],
                     style: TextStyle(
-                      color: Color(0xfff4a950),
+                      color: widget.primaryColor,
                       fontSize: 20,),
                   ),
                 ],
@@ -90,6 +94,7 @@ class _HistoryState extends State<History> {
 
   @override
   Widget build(BuildContext context) {
+    Dialogs dialog = new Dialogs();
     return Scaffold(
       appBar: AppBar(
         title: Text("History"),
@@ -106,7 +111,7 @@ class _HistoryState extends State<History> {
               padding: EdgeInsets.only(right: 10.0),
               child: GestureDetector(
                 onTap: () {
-                  clearHistory();
+                  dialog.ok(context, "Clear History", "Are you sure to clear all history?", "Clear", clearHistory);
                 },
                 child: Icon(
                   Icons.delete,

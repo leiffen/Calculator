@@ -29,8 +29,12 @@ class _CalculatorState extends State<Calculator> {
   bool calculated = false;
   bool badExp = false;
 
+  Color backgroundColor = Colors.black;
   Color formulaColor = Colors.white;
   Color resultColor = Colors.grey;
+  Color errorColor = Colors.red;
+
+  Color primaryColor = Color(0xfff4a950);
 
   @override
   void initState() {
@@ -197,8 +201,8 @@ class _CalculatorState extends State<Calculator> {
         }
       } catch (e) {
         setState(() {
-          formulaColor = Colors.red;
-          resultColor = Colors.red;
+          formulaColor = errorColor;
+          resultColor = errorColor;
           result = 'Bad Expression';
           badExp = true;
         });
@@ -328,7 +332,7 @@ class _CalculatorState extends State<Calculator> {
               padding: EdgeInsets.only(right: 10.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => History()));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => History(primaryColor: primaryColor)));
                 },
                 child: Icon(
                   Icons.history,
@@ -338,7 +342,7 @@ class _CalculatorState extends State<Calculator> {
         ],
       ),
       body: Container(
-        color: Colors.black,
+        color: backgroundColor,
         child: Column(
           children: <Widget>[
             Container(
@@ -373,7 +377,7 @@ class _CalculatorState extends State<Calculator> {
             ),
             Expanded(
               child: Divider(
-                color: Colors.black,
+                color: backgroundColor,
               ),
             ),
             Column(
@@ -383,7 +387,7 @@ class _CalculatorState extends State<Calculator> {
                     button('CLR', fontSize: 14),
                     button('DEL', fontSize: 14),
                     button('90%', fontSize: 14),
-                    button("\u{00F7}", fontSize: 30, textColor: Color(0xfff4a950)),
+                    button("\u{00F7}", fontSize: 30, textColor: primaryColor),
                   ],
                 ),
                 Row(
@@ -391,7 +395,7 @@ class _CalculatorState extends State<Calculator> {
                     button("7"),
                     button("8"),
                     button("9"),
-                    button("x", fontSize: 26, textColor: Color(0xfff4a950)),
+                    button("x", fontSize: 26, textColor: primaryColor),
                   ],
                 ),
                 Row(
@@ -399,7 +403,7 @@ class _CalculatorState extends State<Calculator> {
                     button("4"),
                     button("5"),
                     button("6"),
-                    button("-", fontSize: 36, textColor: Color(0xfff4a950)),
+                    button("-", fontSize: 36, textColor: primaryColor),
                   ],
                 ),
                 Row(
@@ -407,7 +411,7 @@ class _CalculatorState extends State<Calculator> {
                     button("1"),
                     button("2"),
                     button("3"),
-                    button("+", fontSize: 30, textColor: Color(0xfff4a950)),
+                    button("+", fontSize: 30, textColor: primaryColor),
                   ],
                 ),
                 Row(
@@ -415,7 +419,7 @@ class _CalculatorState extends State<Calculator> {
                     button("."),
                     button("0"),
                     button('x1.23', fontSize: 14),
-                    button("=", fontSize: 30, bgColor: Color(0xfff4a950)),
+                    button("=", fontSize: 30, bgColor: primaryColor),
                   ],
                 ),
               ],
