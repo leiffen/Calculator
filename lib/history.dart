@@ -41,53 +41,52 @@ class _HistoryState extends State<History> {
 
   List<Widget> list() {
     List<Widget> widgetList = new List<Widget>();
-    data.forEach( (dateObjects) {
-      dateObjects['values'].forEach( (val) {
-        widgetList.add(
-          Card(
-            color: Colors.black,
-            child: Padding (
-              padding: EdgeInsets.only(top: 10.0, bottom: 10.0, right: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    val['formula'],
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 20,),
+    data.forEach((dateObjects) {
+      dateObjects['values'].forEach((val) {
+        widgetList.add(Card(
+          color: Colors.black,
+          child: Padding(
+            padding: EdgeInsets.only(top: 10.0, bottom: 10.0, right: 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  val['formula'],
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 20,
                   ),
-                  Text(
-                    val['result'],
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,),
-                  )
-                ],
-              ),
+                ),
+                Text(
+                  val['result'],
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                  ),
+                )
+              ],
             ),
-          )
-        );
+          ),
+        ));
       });
-      widgetList.add(
-          Card(
-            color: Colors.black,
-            child: Padding (
-              padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    dateObjects['date'].split(' ')[0],
-                    style: TextStyle(
-                      color: widget.primaryColor,
-                      fontSize: 20,),
-                  ),
-                ],
+      widgetList.add(Card(
+        color: Colors.black,
+        child: Padding(
+          padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                dateObjects['date'].split(' ')[0],
+                style: TextStyle(
+                  color: widget.primaryColor,
+                  fontSize: 20,
+                ),
               ),
-            ),
-          )
-      );
+            ],
+          ),
+        ),
+      ));
     });
     return widgetList;
   }
@@ -107,26 +106,35 @@ class _HistoryState extends State<History> {
           ),
         ),
         actions: <Widget>[
-          Padding(
-              padding: EdgeInsets.only(right: 10.0),
-              child: GestureDetector(
-                onTap: () {
-                  dialog.ok(context, "Clear History", "Are you sure to clear all history?", "Clear", clearHistory);
-                },
-                child: Icon(
-                  Icons.delete,
-                  size: 26.0,
-                ),
-              )),
+          if (data.isNotEmpty)
+            Padding(
+                padding: EdgeInsets.only(right: 10.0),
+                child: GestureDetector(
+                  onTap: () {
+                    dialog.ok(context, "Clear History", "Are you sure to clear all history?", "Clear", clearHistory);
+                  },
+                  child: Icon(
+                    Icons.delete,
+                    size: 26.0,
+                  ),
+                )),
         ],
       ),
       body: Container(
         color: Colors.black,
         child: Center(
-          child: ListView(
-            reverse: true,
-            children: list(),
-          ),
+          child: data.isNotEmpty
+              ? ListView(
+                  reverse: true,
+                  children: list(),
+                )
+              : Text(
+                  "No History",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                  ),
+                ),
         ),
       ),
     );

@@ -17,9 +17,14 @@ class Calculator extends StatefulWidget {
 class _CalculatorState extends State<Calculator> {
   final String fileName = "/history.json";
 
-  final RegExp ops = new RegExp('[+|\\-|x|\u{00F7}]');
-  final RegExp opsNoSub = new RegExp('[+|x|\u{00F7}]');
-  final RegExp nums = new RegExp('[1-9]');
+  final RegExp regOps = new RegExp('[+|\\-|x|\u{00F7}]');
+  final RegExp regOpsNoSub = new RegExp('[+|x|\u{00F7}]');
+  final RegExp regNumbs = new RegExp('[1-9]');
+
+  final Color backgroundColor = Colors.black;
+  final Color formulaColor = Colors.white;
+  final Color resultColor = Colors.grey;
+  final Color errorColor = Colors.red;
 
   String formula = '';
   String result = '';
@@ -28,11 +33,6 @@ class _CalculatorState extends State<Calculator> {
 
   bool calculated = false;
   bool badExp = false;
-
-  Color backgroundColor = Colors.black;
-  Color formulaColor = Colors.white;
-  Color resultColor = Colors.grey;
-  Color errorColor = Colors.red;
 
   Color primaryColor = Color(0xfff4a950);
 
@@ -100,19 +100,19 @@ class _CalculatorState extends State<Calculator> {
           operator = f.indexOf(re, 1);
         }
         // Find previous operator index
-        preOpI = f.substring(0, operator).lastIndexOf(ops);
+        preOpI = f.substring(0, operator).lastIndexOf(regOps);
 
-        if (preOpI == 0 || (preOpI > -1 && f[preOpI] == '-' && f[preOpI - 1].contains(ops))) {
+        if (preOpI == 0 || (preOpI > -1 && f[preOpI] == '-' && f[preOpI - 1].contains(regOps))) {
           preOpI -= 1;
         }
 
         // Get first number
         num1 = double.parse(f.substring(preOpI + 1, operator));
 
-        nextOpI = f.indexOf(ops, operator + 1);
+        nextOpI = f.indexOf(regOps, operator + 1);
 
         if (nextOpI == operator + 1) {
-          nextOpI = f.indexOf(ops, nextOpI + 1);
+          nextOpI = f.indexOf(regOps, nextOpI + 1);
         }
 
         if (nextOpI < 0) {
@@ -149,8 +149,6 @@ class _CalculatorState extends State<Calculator> {
   void checkBadExp() {
     if (badExp) {
       setState(() {
-        formulaColor = Colors.white;
-        resultColor = Colors.grey;
         result = prevResult.isNotEmpty ? prevResult.last : '';
         badExp = false;
       });
@@ -201,46 +199,44 @@ class _CalculatorState extends State<Calculator> {
         }
       } catch (e) {
         setState(() {
-          formulaColor = errorColor;
-          resultColor = errorColor;
           result = 'Bad Expression';
           badExp = true;
         });
       }
     } else {
-      if (buttonText.contains(opsNoSub) && formula.length == 0) {
+      if (buttonText.contains(regOpsNoSub) && formula.length == 0) {
         // Do nothing
-      } else if (buttonText.contains(opsNoSub) && formula.startsWith('-') && formula.length == 1) {
+      } else if (buttonText.contains(regOpsNoSub) && formula.startsWith('-') && formula.length == 1) {
         // Do nothing
       } else if (buttonText == '-' &&
-          ((formula.length > 2 && formula[formula.length - 1] == '-' && formula[formula.length - 2].contains(ops)) ||
+          ((formula.length > 2 && formula[formula.length - 1] == '-' && formula[formula.length - 2].contains(regOps)) ||
               (formula.length == 1 && formula.endsWith('-')))) {
         // Do nothing
-      } else if (buttonText.contains(opsNoSub) &&
+      } else if (buttonText.contains(regOpsNoSub) &&
           formula.length > 2 &&
           formula[formula.length - 1] == '-' &&
-          formula[formula.length - 2].contains(ops)) {
+          formula[formula.length - 2].contains(regOps)) {
         setState(() {
           formula = formula.substring(0, formula.length - 2) + buttonText;
         });
-      } else if (buttonText.contains(opsNoSub) &&
+      } else if (buttonText.contains(regOpsNoSub) &&
           (formula.endsWith('+') || formula.endsWith('-') || formula.endsWith('x') || formula.endsWith('\u{00F7}'))) {
         setState(() {
           formula = formula.substring(0, formula.length - 1) + buttonText;
         });
       } else if (buttonText.contains('0') &&
           formula.endsWith('0') &&
-          ((formula.lastIndexOf('.') == -1 && !formula.contains(nums)) ||
-              (formula.lastIndexOf('.') < formula.lastIndexOf(ops) &&
-                  !formula.contains(nums, formula.lastIndexOf(ops))))) {
+          ((formula.lastIndexOf('.') == -1 && !formula.contains(regNumbs)) ||
+              (formula.lastIndexOf('.') < formula.lastIndexOf(regOps) &&
+                  !formula.contains(regNumbs, formula.lastIndexOf(regOps))))) {
         // Do nothing
       } else {
-        int i = formula.lastIndexOf(ops);
+        int i = formula.lastIndexOf(regOps);
         if (buttonText == '.' &&
             ((i >= 0 && formula.substring(i).contains('.')) || (i == -1 && formula.contains('.')))) {
           // Do nothing
         } else {
-          if (calculated && !buttonText.contains(ops) && buttonText.contains(new RegExp('[.|1-9]'))) {
+          if (calculated && !buttonText.contains(regOps) && buttonText.contains(new RegExp('[.|1-9]'))) {
             setState(() {
               formula = '';
             });
@@ -356,7 +352,7 @@ class _CalculatorState extends State<Calculator> {
                 style: TextStyle(
                   fontSize: 48.0,
                   fontWeight: FontWeight.bold,
-                  color: formulaColor,
+                  color: badExp ? errorColor : formulaColor,
                 ),
               ),
             ),
@@ -371,7 +367,7 @@ class _CalculatorState extends State<Calculator> {
                 style: TextStyle(
                   fontSize: 36.0,
                   fontWeight: FontWeight.bold,
-                  color: resultColor,
+                  color: badExp ? errorColor : resultColor,
                 ),
               ),
             ),
