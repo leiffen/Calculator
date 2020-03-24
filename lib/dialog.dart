@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Dialogs {
-  ok(BuildContext context, String title, String description, String confirmText, Function onPressed) {
+  ok(BuildContext context, String title, String description, String confirmText, Color color, Function onPressed) {
     return showDialog(
         context: context,
         barrierDismissible: true,
@@ -44,7 +44,7 @@ class Dialogs {
                 child: Text(
                   confirmText,
                   style: TextStyle(
-                    color: Color(0xfff4a950),
+                    color: color,
                   ),
                 ),
               )

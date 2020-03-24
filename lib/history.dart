@@ -111,7 +111,7 @@ class _HistoryState extends State<History> {
                 padding: EdgeInsets.only(right: 10.0),
                 child: GestureDetector(
                   onTap: () {
-                    dialog.ok(context, "Clear History", "Are you sure to clear all history?", "Clear", clearHistory);
+                    dialog.ok(context, "Clear History", "Are you sure to clear all history?", "Clear", widget.primaryColor, clearHistory);
                   },
                   child: Icon(
                     Icons.delete,
