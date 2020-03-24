@@ -15,7 +15,8 @@ class Calculator extends StatefulWidget {
 }
 
 class _CalculatorState extends State<Calculator> {
-  final String fileName = "/history.json";
+  final String historyFileName = "/history.json";
+  final String themeFileName = "/theme.json";
 
   final RegExp regOps = new RegExp('[+|\\-|x|\u{00F7}]');
   final RegExp regOpsNoSub = new RegExp('[+|x|\u{00F7}]');
@@ -34,17 +35,53 @@ class _CalculatorState extends State<Calculator> {
   bool calculated = false;
   bool badExp = false;
 
-  Color primaryColor = Color(0xfff4a950);
+  Color primaryColor;
 
   @override
   void initState() {
     super.initState();
+    getColorTheme();
+  }
+
+  void getColorTheme() async {
+    await getApplicationDocumentsDirectory().then((Directory directory) {
+      Directory dir = directory;
+      File jsonFile = new File(dir.path + themeFileName);
+      Map<String, dynamic> content;
+
+      if (jsonFile.existsSync()) {
+        content = jsonDecode(jsonFile.readAsStringSync());
+        this.setState(() {
+          primaryColor = Color(content['colorThemeList'][content['colorTheme']]);
+        });
+      } else {
+        addColorTheme();
+      }
+    });
+  }
+
+  void addColorTheme() async {
+    await getApplicationDocumentsDirectory().then((Directory directory) {
+      Directory dir = directory;
+      File jsonFile = new File(dir.path + themeFileName);
+      Map<String, dynamic> content;
+      jsonFile.createSync();
+      content = {
+        'colorTheme': 'green',
+        'colorThemeList': {'orange': 0xfff4a950, "red": 0xffea4335, "blue": 0xff4285f4, "green": 0xff34a853}
+      };
+      jsonFile.writeAsStringSync(jsonEncode(content));
+
+      this.setState(() {
+        primaryColor = Color(content['colorThemeList'][content['colorTheme']]);
+      });
+    });
   }
 
   Future<bool> addToHistory() async {
     await getApplicationDocumentsDirectory().then((Directory directory) {
       Directory dir = directory;
-      File jsonFile = new File(dir.path + fileName);
+      File jsonFile = new File(dir.path + historyFileName);
       DateTime now = new DateTime.now();
       String date = new DateTime(now.year, now.month, now.day).toString();
       List<dynamic> content;
@@ -158,7 +195,7 @@ class _CalculatorState extends State<Calculator> {
   void buttonPressed(String buttonText) {
     if (buttonText == 'CLR' || buttonText == 'DEL') {
       _buttonPressed(buttonText);
-    } else if (!((buttonText == '90%' || buttonText == 'x1.23') && formula.isEmpty)){
+    } else if (!((buttonText == '90%' || buttonText == 'x1.23') && formula.isEmpty)) {
       if (buttonText == '90%') {
         buttonText = 'x.9';
       }
@@ -190,7 +227,8 @@ class _CalculatorState extends State<Calculator> {
       try {
         if (formula.length > 0) {
           String res = calculate();
-          addToHistory().then((addedHistory) => setState(() {
+          addToHistory().then((addedHistory) =>
+              setState(() {
                 formula = res;
                 result = '';
                 prevResult.clear();
@@ -287,26 +325,32 @@ class _CalculatorState extends State<Calculator> {
   Widget button(String buttonText, {double fontSize = 24.0, Color textColor = Colors.white, Color bgColor}) {
     return new Expanded(
         child: ButtonTheme(
-      height: MediaQuery.of(context).size.height / 5 * 3 / 5,
-      child: FlatButton(
-        color: bgColor != null ? bgColor : Color.fromRGBO(20, 20, 20, 1),
-        child: Text(
-          buttonText,
-          style: TextStyle(
-            color: textColor,
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
+          height: MediaQuery
+              .of(context)
+              .size
+              .height / 5 * 3 / 5,
+          child: FlatButton(
+            color: bgColor != null ? bgColor : Color.fromRGBO(20, 20, 20, 1),
+            child: Text(
+              buttonText,
+              style: TextStyle(
+                color: textColor,
+                fontSize: fontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onPressed: () => buttonPressed(buttonText),
           ),
-        ),
-        onPressed: () => buttonPressed(buttonText),
-      ),
-    ));
+        ));
   }
 
   Widget blank() {
     return new Expanded(
       child: Container(
-        height: MediaQuery.of(context).size.height / 5 * 3 / 5,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height / 5 * 3 / 5,
         color: Colors.grey[900],
         child: Text(
           '',
@@ -328,7 +372,8 @@ class _CalculatorState extends State<Calculator> {
               padding: EdgeInsets.only(right: 10.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => History(primaryColor: primaryColor)));
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => History(primaryColor: primaryColor)));
                 },
                 child: Icon(
                   Icons.history,
